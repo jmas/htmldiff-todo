@@ -1,6 +1,12 @@
 import * as diff from 'diffhtml';
 import * as actions from './actions';
-import { store, FILTER_DONE, FILTER_ALL, FILTER_UNDONE } from './store';
+import { store, FILTER_ALL, FILTER_DONE, FILTER_UNDONE } from './store';
+
+const filters = {
+  [FILTER_ALL]: 'All',
+  [FILTER_DONE]: 'Done',
+  [FILTER_UNDONE]: 'Undone'
+};
 
 const { html, innerHTML } = diff;
 
@@ -29,7 +35,7 @@ function onTaskRemove (event) {
 
 function onFilterClick (event) {
   event.preventDefault();
-  store.dispatch(actions.filter(event.currentTarget.getAttribute('data-filter')));
+  store.dispatch(actions.filter(event.currentTarget.value));
 }
 
 function getTasksFiltered (tasks, filterBy) {
@@ -85,14 +91,20 @@ export function createToDo (state) {
   `;
 }
 
+export function createFilterOption (type, filterBy) {
+  return html`
+    <label>
+      <input type="radio" name="filterBy" onclick="${onFilterClick}" value="${type}" ${filterBy===type ? 'checked': ''} /> ${filters[type]}
+    </label>
+  `;
+}
+
 export function createFilter (filterBy) {
   return html`
-    <div>
-      Filter by (${filterBy}):
-      <button onclick="${onFilterClick}" data-filter="${FILTER_ALL}">All</button>
-      <button onclick="${onFilterClick}" data-filter="${FILTER_DONE}">Done</button>
-      <button onclick="${onFilterClick}" data-filter="${FILTER_UNDONE}">Undone</button>
-    </div>
+    <form>
+      <span>Filter by:</span>
+      ${Object.keys(filters).map((type)=>createFilterOption(type, filterBy))}
+    </form>
   `;
 }
 
